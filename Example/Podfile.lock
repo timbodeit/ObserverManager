@@ -1,0 +1,14 @@
+PODS:
+  - ObserverManager (0.1.0)
+
+DEPENDENCIES:
+  - ObserverManager (from `../`)
+
+EXTERNAL SOURCES:
+  ObserverManager:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  ObserverManager: d4902f8bf62a7c5403af91df6a69ae775d7bc16f
+
+COCOAPODS: 0.39.0.rc.1
