@@ -15,8 +15,18 @@ passing a Swift closure.
 Every object, that uses KVO should have its own NotificationManager.
 All observers are automatically deregistered when the object is deallocated.
 */
-public class ObserverManager : NSObject {
-    
+open class ObserverManager : NSObject {
+  
+    @available(*, deprecated, message: "Use registerObserver(object:, keyPath:, block:) instead.")
+    public func registerObserverForObject(_ object: NSObject, keyPath: String, block: @escaping (_ value: NSObject) -> ()) {
+      self.registerObserver(object: object, keyPath: keyPath, block: block)
+    }
+  
+    @available(*, deprecated, message: "Use deregisterObservers(object:) instead.")
+    public func deregisterObserversForObject(_ object: NSObject, andKeyPath keyPath: String) {
+      self.deregisterObservers(object: object)
+    }
+  
     // MARK: Public API
     
     /**
@@ -26,7 +36,7 @@ public class ObserverManager : NSObject {
     - parameter keyPath: The keyPath to observe
     - parameter block:   The block that is called when the value changed. Gets called with the new value.
     */
-    public func registerObserverForObject(object: NSObject, keyPath: String, block: (value: NSObject) -> ()) {
+    open func registerObserver(object: NSObject, keyPath: String, block: @escaping (_ value: NSObject) -> ()) {
         var closuresForKeyPaths = Dictionary<String, Array<(NSObject) -> ()>>()
         if let cfkp = closuresForKeypathsForObservedObjects[object] {
             closuresForKeyPaths = cfkp
@@ -39,13 +49,13 @@ public class ObserverManager : NSObject {
         closuresForKeyPaths[keyPath] = closures
         closuresForKeypathsForObservedObjects[object] = closuresForKeyPaths
         
-        object.addObserver(self, forKeyPath: keyPath, options: .New, context: nil)
+        object.addObserver(self, forKeyPath: keyPath, options: .new, context: nil)
     }
     
     /**
     Removes all observers that observe the given keypath on the given object.
     */
-    public func deregisterObserversForObject(object: NSObject, andKeyPath keyPath: String) {
+    open func deregisterObservers(object: NSObject, keyPath: String) {
         guard var closuresForKeyPaths = closuresForKeypathsForObservedObjects[object] else {
             return // No observers registered for given object and keyPath
         }
@@ -62,7 +72,7 @@ public class ObserverManager : NSObject {
     /**
     Removes all observers that observe any keypath on the given object.
     */
-    public func deregisterObserversForObject(object: NSObject) {
+    open func deregisterObservers(object: NSObject) {
         guard let closuresForKeypaths = closuresForKeypathsForObservedObjects[object] else {
             return // No observers registered for the given object
         }
@@ -77,14 +87,14 @@ public class ObserverManager : NSObject {
     /**
     Removes all observers that observe any keypath on any object.
     */
-    public func deregisterAllObservers() {
+    open func deregisterAllObservers() {
         for (object, closuresForKeyPaths) in closuresForKeypathsForObservedObjects {
             for (keypath, _) in closuresForKeyPaths {
                 object.removeObserver(self, forKeyPath: keypath)
             }
         }
         
-        closuresForKeypathsForObservedObjects.removeAll(keepCapacity: false)
+        closuresForKeypathsForObservedObjects.removeAll(keepingCapacity: false)
     }
     
     // MARK: Private Logic
@@ -93,7 +103,7 @@ public class ObserverManager : NSObject {
     // rdar://19175346 (on openradar)
     private var closuresForKeypathsForObservedObjects = Dictionary<NSObject, Dictionary<String, Array<(NSObject) -> ()>>>()
     
-    override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         guard let keyPath = keyPath else { return }
         guard let object = object as? NSObject else { return }
         

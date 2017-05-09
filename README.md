@@ -9,7 +9,9 @@ Closure Support and automatic deregistering for Key Value Observing in Swift.
 
 ## Requirements
 
-This version of ObserverManager is meant to be used with Swift 2.0
+This version of ObserverManager is meant to be used with Swift 3.0
+
+For Swift 2 use Version 0.1.0
 
 ## Usage
 
@@ -25,7 +27,7 @@ class SomeObservingClass {
     init(foo: Foo) {
         self.foo = foo
         
-        observerManager.registerObserverForObject(foo, keyPath: "bar") { bar in
+        observerManager.registerObserver(object: foo, keyPath: "bar") { bar in
         	// Do stuff
         	[...]
         }
@@ -52,22 +54,23 @@ Registers a new observer for a given object and keypath.
 - parameter keyPath: The keyPath to observe
 - parameter block:   The block that is called when the value changed. Gets called with the new value.
 */
-public func registerObserverForObject(object: NSObject, keyPath: String, block: (value: NSObject) -> ())
+open func registerObserver(object: NSObject, keyPath: String, block: @escaping (_ value: NSObject) -> ())
+
 
 /**
 Removes all observers that observe the given keypath on the given object.
 */
-public func deregisterObserversForObject(object: NSObject, andKeyPath keyPath: String)
+open func deregisterObservers(object: NSObject, keyPath: String)
 
 /**
 Removes all observers that observe any keypath on the given object.
 */
-public func deregisterObserversForObject(object: NSObject)
+open func deregisterObservers(object: NSObject)
 
 /**
 Removes all observers that observe any keypath on any object.
 */
-public func deregisterAllObservers()
+open func deregisterAllObservers()
 
 }
 ```
